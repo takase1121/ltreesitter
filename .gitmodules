@@ -1,0 +1,6 @@
+[submodule "lite-xl-plugin-api"]
+	path = lite-xl-plugin-api
+	url = https://github.com/takase1121/lite-xl-plugin-api.git
+[submodule "tree-sitter"]
+	path = tree-sitter
+	url = https://github.com/tree-sitter/tree-sitter.git

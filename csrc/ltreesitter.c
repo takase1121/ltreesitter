@@ -1,3 +1,5 @@
+#define LITE_XL_PLUGIN_ENTRYPOINT
+
 #include <lauxlib.h>
 #include <lua.h>
 
@@ -41,4 +43,9 @@ LTREESITTER_EXPORT int luaopen_ltreesitter(lua_State *L) {
 	lua_setfield(L, -2, "version");
 
 	return 1;
+}
+
+LTREESITTER_EXPORT int luaopen_lite_xl_ltreesitter(lua_State *L, void *XL) {
+	lite_xl_plugin_init(XL);
+	return luaopen_ltreesitter(L);
 }

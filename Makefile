@@ -4,35 +4,31 @@
 # !!! This is mostly for quick and dirty testing
 # !!!
 
-HEADERS=$(wildcard csrc/*.h) $(wildcard include/ltreesitter/*.h)
-SRC=$(wildcard csrc/*.c)
+SRC=$(wildcard csrc/*.c) tree-sitter/lib/src/lib.c
 OBJ=$(SRC:.c=.o)
 
-CFLAGS := -I./include -Wall -Wextra -Werror -Og -ggdb -std=c99 -pedantic -fPIC
-# CFLAGS += -DLOG_GC
-# CFLAGS += -fsanitize=address,undefined,leak
+INC := -Iinclude -Ilite-xl-plugin-api/include -Itree-sitter/lib/include
+TS_INC := -Itree-sitter/lib/include -Itree-sitter/lib/src
+
+CFLAGS := -O3 -Wall -Wextra -Werror -std=c99 -pedantic -fPIC
+TS_CFLAGS := -O3 -Wall -Wextra -Werror -std=gnu99 -fPIC
+
 LIBS :=
-# LIBS += -lasan -lubsan -lpthread
-LIBS += -ltree-sitter -llua -ldl
+POSIX_LIBS := -ldl
 
-INSTALL_PREFIX:=/usr/local/lib
+ltreesitter.so: $(OBJ)
+	$(CC) -shared -o $@ $^ $(LIBS) $(POSIX_LIBS)
 
-dynamic: ltreesitter.so
-static: ltreesitter.a
+ltreesitter.dll: $(OBJ)
+	$(CC) -shared -o $@ $^ $(LIBS)
 
-ltreesitter.a: $(OBJ) $(HEADERS)
-	$(AR) r $@ $(OBJ)
+%.o: %.c
+	$(CC) -c -o $@ $(CFLAGS) $(INC) $<
 
-ltreesitter.so: $(OBJ) $(HEADERS)
-	$(CC) -shared $(OBJ) -o $@ $(LIBS)
+tree-sitter/%.o: tree-sitter/%.c
+	$(CC) -c -o $@ $(TS_CFLAGS) $(TS_INC) $<
 
 clean:
-	rm -f $(OBJ) ltreesitter.a ltreesitter.so
+	$(RM) $(OBJ) ltreesitter.so ltreesitter.dll
 
-all: clean ltreesitter.a ltreesitter.so
-
-install: ltreesitter.a ltreesitter.so
-	cp ltreesitter.a $(INSTALL_PREFIX)/
-	cp ltreesitter.so $(INSTALL_PREFIX)/
-
-.PHONY: clean all
+.PHONY: clean
